@@ -3,8 +3,14 @@ local snippets = {}
 snippets.config = require("snippets.config")
 snippets.utils = require("snippets.utils")
 
+Snippets = snippets
+
+---@class Snippet
+---@field prefix string
+---@field body string
+
 ---@private
----@type table<string, table>
+---@type table<string, Snippet>
 snippets.loaded_snippets = {}
 
 ---@type fun(filetype?: string): table<string, table>|nil
@@ -20,40 +26,21 @@ function snippets.load_snippets_for_ft(filetype)
 	return snippets.loaded_snippets
 end
 
----@return table<string, table>
+---@return table<string, Snippet>
 function snippets.get_loaded_snippets()
 	return snippets.loaded_snippets
 end
 
-function snippets.create_autocmd()
-	if not snippets.config.get_option("create_autocmd") then
-		return
-	end
-
-	vim.api.nvim_create_autocmd("FileType", {
-		group = vim.api.nvim_create_augroup("snippets_ft_detect", { clear = true }),
-		pattern = "*",
-		callback = function()
-			snippets.load_snippets_for_ft(vim.bo.filetype)
-		end,
-	})
-end
-
-function snippets.register_cmp_source()
-	require("snippets.utils.cmp").register()
-end
-
 ---@param opts? table  -- Make a better type for this
 function snippets.setup(opts)
-	local defaults = snippets.config.load_defaults()
-	snippets.config = vim.tbl_extend("force", {}, defaults, opts or {})
+	snippets.config.new(opts)
 
 	if snippets.config.get_option("create_autocmd") then
-		snippets.create_autocmd()
+		snippets.utils.create_autocmd()
 	end
 
 	if snippets.config.get_option("create_cmp_source") then
-		snippets.register_cmp_source()
+		snippets.utils.register_cmp_source()
 	end
 end
 

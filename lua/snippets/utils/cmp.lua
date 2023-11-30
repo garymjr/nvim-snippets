@@ -1,9 +1,6 @@
-local snippets = require("snippets")
 local cmp = require("cmp")
 
 local source = {}
-
----@alias lsp.CompletionResponse lsp.CompletionList|lsp.CompletionItem[]
 
 local cache = {}
 
@@ -24,24 +21,22 @@ function source:get_debug_name()
 	return "snippets"
 end
 
----@param callback fun(response: lsp.CompletionResponse|nil)
 function source:complete(_, callback)
 	if cache[vim.bo.filetype] == nil then
-		cache[vim.bo.filetype] = snippets.load_snippets_for_ft(vim.bo.filetype)
+		cache[vim.bo.filetype] = Snippets.load_snippets_for_ft(vim.bo.filetype)
 	end
 
 	local loaded_snippets = cache[vim.bo.filetype]
 
-	---@type lsp.CompletionItem[]
 	local response = {}
 
 	for key in pairs(loaded_snippets) do
 		table.insert(response, {
-			label = loaded_snippets[key].label or key,
+			label = loaded_snippets[key].prefix,
 			kind = cmp.lsp.CompletionItemKind.Snippet,
-			insertText = key,
+			insertText = loaded_snippets[key].prefix,
 			data = {
-				word = key,
+				prefix = loaded_snippets[key].prefix,
 				body = loaded_snippets[key].body,
 			},
 		})
@@ -49,14 +44,20 @@ function source:complete(_, callback)
 	callback(response)
 end
 
----@param completion_item lsp.CompletionItem
----@param callback fun(completion_item: lsp.CompletionItem|nil)
+function source:resolve(completion_item, callback)
+	completion_item.documentation = {
+		kind = cmp.lsp.MarkupKind.Markdown,
+		value = completion_item.data.body,
+	}
+	callback(completion_item)
+end
+
 function source:execute(completion_item, callback)
 	callback(completion_item)
 	local cursor = vim.api.nvim_win_get_cursor(0)
 	cursor[1] = cursor[1] - 1
 
-	vim.api.nvim_buf_set_text(0, cursor[1], cursor[2] - #completion_item.data.word, cursor[1], cursor[2], { "" })
+	vim.api.nvim_buf_set_text(0, cursor[1], cursor[2] - #completion_item.data.prefix, cursor[1], cursor[2], { "" })
 	---@diagnostic disable-next-line: param-type-mismatch
 	vim.snippet.expand(completion_item.data.body)
 end
