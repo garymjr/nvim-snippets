@@ -31,15 +31,38 @@ function source:complete(_, callback)
 	local response = {}
 
 	for key in pairs(loaded_snippets) do
-		table.insert(response, {
-			label = loaded_snippets[key].prefix,
-			kind = cmp.lsp.CompletionItemKind.Snippet,
-			insertText = loaded_snippets[key].prefix,
-			data = {
-				prefix = loaded_snippets[key].prefix,
-				body = loaded_snippets[key].body,
-			},
-		})
+		local snippet = loaded_snippets[key]
+		local body
+		if type(snippet.body) == "table" then
+			body = table.concat(snippet.body, "\n")
+		else
+			body = snippet.body
+		end
+
+		local prefix = loaded_snippets[key].prefix
+		if type(prefix) == "table" then
+			for _, p in ipairs(prefix) do
+				table.insert(response, {
+					label = p,
+					kind = cmp.lsp.CompletionItemKind.Snippet,
+					insertText = p,
+					data = {
+						prefix = p,
+						body = body,
+					},
+				})
+			end
+		else
+			table.insert(response, {
+				label = prefix,
+				kind = cmp.lsp.CompletionItemKind.Snippet,
+				insertText = prefix,
+				data = {
+					prefix = prefix,
+					body = body,
+				},
+			})
+		end
 	end
 	callback(response)
 end

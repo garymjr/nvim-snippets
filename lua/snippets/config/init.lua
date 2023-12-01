@@ -12,6 +12,9 @@ local defaults = {
 	--- The created source name is "snippets"
 	---@type boolean
 	create_cmp_source = true,
+	--- Should we try to load the friendly-snippets snippets?
+	---@type boolean
+	friendly_snippets = false,
 	--- A list of filetypes to ignore snippets for
 	---@type table|nil
 	ignored_filetypes = nil,
@@ -22,28 +25,30 @@ local defaults = {
 	--- A table of global snippets to load for all filetypes
 	---@type table|nil
 	global_snippets = { "all" },
-	--- The path to the snippets folder
-	---@type string
-	snippets_path = vim.fn.stdpath("config") .. "/snippets",
+	--- Paths to search for snippets
+	---@type string[]
+	search_paths = { vim.fn.stdpath("config") .. "/snippets" },
 }
 
----@param opts? snippets.config.Options
----@return snippets.config.Options
+---@type fun(opts?: snippets.config.Options): snippets.config.Options
 function config.new(opts)
 	C = vim.tbl_extend("force", {}, defaults, opts or {})
 	return C
 end
 
----@return snippets.config.DefaultOptions
+---@type fun(): snippets.config.DefaultOptions
 function config.load_defaults()
 	return defaults
 end
 
----@param option string
----@param defaultValue? any
----@return any
+---@type fun(option: string, defaultValue?: any): any
 function config.get_option(option, defaultValue)
 	return C[option] or defaultValue
+end
+
+---@type fun(option: string, value: any)
+function config.set_option(option, value)
+	C[option] = value
 end
 
 return config
