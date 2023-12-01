@@ -13,7 +13,13 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     {
       "<Tab>",
       function()
-        return vim.snippet.jumpable(1) and vim.snippet.jump(1) or "<Tab>"
+        if vim.snippet.jumpable(1) then
+          vim.schedule(function()
+            vim.snippet.jump(1)
+          end)
+          return
+        end
+        return "<Tab>"
       end,
       expr = true,
       silent = true,
@@ -22,7 +28,9 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     {
       "<Tab>",
       function()
-        return vim.snippet.jump(1)
+        vim.schedule(function()
+          vim.snippet.jump(1)
+        end)
       end,
       expr = true,
       silent = true,
@@ -31,11 +39,17 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     {
       "<S-Tab>",
       function()
-        return vim.snippet.jumpable(-1) and vim.snippet.jump(-1) or "<S-Tab>"
+        if vim.snippet.jumpable(-1) then
+          vim.schedule(function()
+            vim.snippet.jump(-1)
+          end)
+          return
+        end
+        return "<S-Tab>"
       end,
       expr = true,
       silent = true,
-      mode = {"i", "s"},
+      mode = { "i", "s" },
     },
   },
 }
