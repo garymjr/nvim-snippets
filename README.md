@@ -83,8 +83,8 @@ search_paths       | `string[]`  | `{vim.fn.stdpath('config') .. '/snippets'}` |
 ```json
 {
   "Say hello to the world": {
-    prefix: ["hw", "hello"],
-    body: "Hello, ${1:world}!$0"
+    "prefix": ["hw", "hello"],
+    "body": "Hello, ${1:world}!$0"
   }
 }
 ```
