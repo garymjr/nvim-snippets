@@ -46,8 +46,11 @@ end
 ---@param opts? table  -- Make a better type for this
 function snippets.setup(opts)
 	snippets.config.new(opts)
-	if snippets.config.get_option("friendly_snippets") then
-		snippets.utils.load_friendly_snippets()
+	local has_friendly_snippets, path = snippets.utils.has_friendly_snippets()
+	if has_friendly_snippets then
+		local search_paths = snippets.config.get_option("search_paths", {})
+		table.insert(search_paths, path)
+		snippets.config.set_option("search_paths", search_paths)
 	end
 
 	snippets.utils.register_snippets()

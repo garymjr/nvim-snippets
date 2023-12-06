@@ -13,6 +13,7 @@ local defaults = {
 	---@type boolean
 	create_cmp_source = true,
 	--- Should we try to load the friendly-snippets snippets?
+	---@deprecated
 	---@type boolean
 	friendly_snippets = false,
 	--- A list of filetypes to ignore snippets for

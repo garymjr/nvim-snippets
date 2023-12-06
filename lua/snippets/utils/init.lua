@@ -178,12 +178,22 @@ function utils.register_cmp_source()
 	utils.cmp.register()
 end
 
-function utils.load_friendly_snippets()
-	local search_paths = Snippets.config.get_option("search_paths", {})
+---@type fun(): boolean, string|nil
+function utils.has_friendly_snippets()
 	for _, path in ipairs(vim.opt.runtimepath:get()) do
 		if string.match(path, "friendly.snippets") then
-			table.insert(search_paths, string.format("%s/snippets", path))
+			return true, string.format("%s/snippets", path)
 		end
+	end
+	return false, nil
+end
+
+---@deprecated
+function utils.load_friendly_snippets()
+	local has_friendly_snippets, path = utils.has_friendly_snippets()
+	local search_paths = Snippets.config.get_option("search_paths", {})
+	if has_friendly_snippets then
+		table.insert(search_paths, path)
 	end
 	Snippets.config.set_option("search_paths", search_paths)
 end
