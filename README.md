@@ -90,6 +90,6 @@ search_paths       | `string[]`  | `{vim.fn.stdpath('config') .. '/snippets'}` |
 ```
 
 ## TODO
-- [] Automatically detect if friendly-snippets is installed
-- [] Add overrides to support overriding filetype snippets
-- [] (Undecided) Add support for friendly-snippets `package.json` definitions
+- [ ] Automatically detect if friendly-snippets is installed
+- [ ] Add overrides to support overriding filetype snippets
+- [ ] (Undecided) Add support for friendly-snippets `package.json` definitions
