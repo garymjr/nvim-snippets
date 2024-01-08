@@ -1,54 +1,49 @@
-local config = {}
-
----@class snippets.config.Options : snippets.config.DefaultOptions
-local C = {}
-
----@class snippets.config.DefaultOptions
-local defaults = {
-	--- Should an autocmd be created to load snippets automatically?
-	---@type boolean
-	create_autocmd = false,
-	--- Should the cmp source be created and registered?
-	--- The created source name is "snippets"
-	---@type boolean
-	create_cmp_source = true,
-	--- Should we try to load the friendly-snippets snippets?
-	---@type boolean
-	friendly_snippets = false,
-	--- A list of filetypes to ignore snippets for
-	---@type table|nil
-	ignored_filetypes = nil,
-	--- A table of filetypes to apply additional snippets for
-	--- example: { typescript = { "javascript" } }
-	---@type table|nil
-	extended_filetypes = nil,
-	--- A table of global snippets to load for all filetypes
-	---@type table|nil
-	global_snippets = { "all" },
-	--- Paths to search for snippets
-	---@type string[]
-	search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+---@class SnippetsConfig: SnippetsOptions
+local M = {
+	---@type table<string, string[]>
+	registry = {},
 }
 
----@type fun(opts?: snippets.config.Options): snippets.config.Options
-function config.new(opts)
-	C = vim.tbl_extend("force", {}, defaults, opts or {})
-	return C
+---@class SnippetsOptions
+local defaults = {
+	--- Should filetype snippets be loaded automatically? If using snippets engine
+	--- this can be left `false`.
+	---@type boolean
+	autoload = false,
+	--- A list of filetypes for which snippets should not be loaded
+	---@type table|nil
+	ignored_filetypes = nil,
+	--- A table of snippets to load for all filetypes
+	---@type table|nil
+	global_snippets = nil,
+	--- The path to the snippets directory
+	---@type string
+	snippets_path = vim.fn.stdpath("config") .. "/snippets",
+}
+
+---@type SnippetsOptions
+local options
+
+---@type fun(opts?: SnippetsOptions)
+function M.setup(opts)
+	options = vim.tbl_extend("force", defaults, opts or {}) or {}
+
+	if options.autoload then
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "*",
+			group = vim.api.nvim_create_augroup("Sippets", { clear = true }),
+			callback = Util.load_snippets,
+		})
+	end
 end
 
----@type fun(): snippets.config.DefaultOptions
-function config.load_defaults()
-	return defaults
-end
+setmetatable(M, {
+	__index = function(_, key)
+		if options == nil then
+			options = vim.deepcopy(defaults)
+		end
+		return options[key]
+	end,
+})
 
----@type fun(option: string, defaultValue?: any): any
-function config.get_option(option, defaultValue)
-	return C[option] or defaultValue
-end
-
----@type fun(option: string, value: any)
-function config.set_option(option, value)
-	C[option] = value
-end
-
-return config
+return M

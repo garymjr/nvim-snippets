@@ -1,64 +1,71 @@
-local snippets = {}
+local Snippets = {}
+local M = {}
 
-snippets.config = require("snippets.config")
-snippets.utils = require("snippets.utils")
+---@type fun(opts?: SnippetsOptions)
+function M.setup(opts)
+	require("snippets.config").setup(opts)
+end
 
-Snippets = snippets
+return M
+
+H.config = {
+	--- Should an autocmd be created to load snippets automatically?
+	---@type boolean
+	create_autocmd = false,
+	--- A list of filetypes to ignore snippets for
+	---@type table|nil
+	ignored_filetypes = nil,
+	--- A table of filetypes to apply additional snippets for
+	--- example: { typescript = { "javascript" } }
+	---@type table|nil
+	extended_filetypes = nil,
+	--- A table of global snippets to load for all filetypes
+	---@type table|nil
+	global_snippets = { "all" },
+	--- Paths to search for snippets
+	---@type string[]
+	search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+}
+
+function Snippets.setup(opts) end
+
+Snippets.config = require("snippets.config")
+Snippets.utils = require("snippets.utils")
 
 ---@class Snippet
 ---@field prefix string
 ---@field body string
+---@field description string
 
----@private
 ---@type table<string, Snippet>
-snippets.loaded_snippets = {}
+H.cached_snippets = {}
 
----@private
 ---@type table<string, string|string[]>
-snippets.registry = {}
+H.registry = {}
 
----@private
 ---@type table<string, string>
-snippets.prefix_lookup = {}
+H.prefix_lookup = {}
 
 ---@type fun(filetype?: string): table<string, table>|nil
-function snippets.load_snippets_for_ft(filetype)
-	if snippets.utils.is_filetype_ignored(filetype) then
+function Snippets.load_snippets_for_ft(filetype)
+	if Snippets.utils.is_filetype_ignored(filetype) then
 		return nil
 	end
 
-	local global_snippets = snippets.utils.get_global_snippets()
-	local extended_snippets = snippets.utils.get_extended_snippets(filetype)
-	local ft_snippets = snippets.utils.get_snippets_for_ft(filetype)
-	snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, global_snippets, extended_snippets, ft_snippets)
+	local global_snippets = Snippets.utils.get_global_snippets()
+	local extended_snippets = Snippets.utils.get_extended_snippets(filetype)
+	local ft_snippets = Snippets.utils.get_snippets_for_ft(filetype)
+	Snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, global_snippets, extended_snippets, ft_snippets)
 
-	for key, snippet in pairs(snippets.loaded_snippets) do
-		snippets.prefix_lookup[snippet.prefix] = key
+	for key, snippet in pairs(Snippets.loaded_snippets) do
+		Snippets.prefix_lookup[snippet.prefix] = key
 	end
-	return snippets.loaded_snippets
+	return Snippets.loaded_snippets
 end
 
 ---@return table<string, Snippet>
-function snippets.get_loaded_snippets()
-	return snippets.loaded_snippets
+function Snippets.get_loaded_snippets()
+	return Snippets.loaded_snippets
 end
 
----@param opts? table  -- Make a better type for this
-function snippets.setup(opts)
-	snippets.config.new(opts)
-	if snippets.config.get_option("friendly_snippets") then
-		snippets.utils.load_friendly_snippets()
-	end
-
-	snippets.utils.register_snippets()
-
-	if snippets.config.get_option("create_autocmd") then
-		snippets.utils.create_autocmd()
-	end
-
-	if snippets.config.get_option("create_cmp_source") then
-		snippets.utils.register_cmp_source()
-	end
-end
-
-return snippets
+return Snippets
