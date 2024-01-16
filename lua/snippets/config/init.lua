@@ -1,3 +1,5 @@
+local Util = require("snippets.util")
+
 ---@class SnippetsConfig: SnippetsOptions
 local M = {
 	---@type table<string, string[]>
@@ -32,7 +34,9 @@ function M.setup(opts)
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "*",
 			group = vim.api.nvim_create_augroup("Sippets", { clear = true }),
-			callback = Util.load_snippets,
+			callback = function(args)
+				Util.get_registered_snippets(args.match)
+			end,
 		})
 	end
 end

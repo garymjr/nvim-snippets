@@ -1,33 +1,28 @@
-local Snippets = {}
-local M = {}
+local M = {
+  snippets = {},
+}
 
 ---@type fun(opts?: SnippetsOptions)
 function M.setup(opts)
-	require("snippets.config").setup(opts)
+  require("snippets.config").setup(opts)
+end
+
+---@type fun(source: string, target: string|string[])
+function M.register_filetype(source, target)
+  require("snippets.registry").register_filetype(source, target)
+end
+
+---@type fun(snippets: table)
+function M.load_snippets(snippets)
+  M.snippets = snippets
+end
+
+---@type fun(prefix: string): table
+function M.get_snippet(prefix)
+  return M.snippets[prefix]
 end
 
 return M
-
-H.config = {
-	--- Should an autocmd be created to load snippets automatically?
-	---@type boolean
-	create_autocmd = false,
-	--- A list of filetypes to ignore snippets for
-	---@type table|nil
-	ignored_filetypes = nil,
-	--- A table of filetypes to apply additional snippets for
-	--- example: { typescript = { "javascript" } }
-	---@type table|nil
-	extended_filetypes = nil,
-	--- A table of global snippets to load for all filetypes
-	---@type table|nil
-	global_snippets = { "all" },
-	--- Paths to search for snippets
-	---@type string[]
-	search_paths = { vim.fn.stdpath("config") .. "/snippets" },
-}
-
-function Snippets.setup(opts) end
 
 Snippets.config = require("snippets.config")
 Snippets.utils = require("snippets.utils")
