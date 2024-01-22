@@ -45,7 +45,9 @@ function source:complete(_, callback)
 				table.insert(response, {
 					label = p,
 					kind = cmp.lsp.CompletionItemKind.Snippet,
-					insertText = p,
+					insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
+					insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
+					insertText = body,
 					data = {
 						prefix = p,
 						body = body,
@@ -56,7 +58,9 @@ function source:complete(_, callback)
 			table.insert(response, {
 				label = prefix,
 				kind = cmp.lsp.CompletionItemKind.Snippet,
-				insertText = prefix,
+				insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
+				insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
+				insertText = body,
 				data = {
 					prefix = prefix,
 					body = body,
@@ -68,21 +72,20 @@ function source:complete(_, callback)
 end
 
 function source:resolve(completion_item, callback)
+	-- highlight code block
+	local preview = completion_item.data.body
+	if require("snippets.config").get_option("highlight_preview", false) then
+		preview = string.format("```%s\n%s\n```", vim.bo.filetype, preview)
+	end
 	completion_item.documentation = {
 		kind = cmp.lsp.MarkupKind.Markdown,
-		value = completion_item.data.body,
+		value = preview,
 	}
 	callback(completion_item)
 end
 
 function source:execute(completion_item, callback)
 	callback(completion_item)
-	local cursor = vim.api.nvim_win_get_cursor(0)
-	cursor[1] = cursor[1] - 1
-
-	vim.api.nvim_buf_set_text(0, cursor[1], cursor[2] - #completion_item.data.prefix, cursor[1], cursor[2], { "" })
-	---@diagnostic disable-next-line: param-type-mismatch
-	vim.snippet.expand(completion_item.data.body)
 end
 
 local function register()
