@@ -8,6 +8,9 @@ local defaults = {
 	--- Should an autocmd be created to load snippets automatically?
 	---@type boolean
 	create_autocmd = false,
+	--- Wrap the preview text in a markdown code block for highlighting?
+	---@type boolean
+	highlight_preview = true,
 	--- Should the cmp source be created and registered?
 	--- The created source name is "snippets"
 	---@type boolean
