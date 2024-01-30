@@ -13,7 +13,7 @@ source.clear_cache = function()
 end
 
 function source:is_available()
-	local ok, _ = pcall(require, "snippets")
+	local ok, _ = pcall(require, "nvim-snippets")
 	return ok
 end
 
@@ -74,7 +74,7 @@ end
 function source:resolve(completion_item, callback)
 	-- highlight code block
 	local preview = completion_item.data.body
-	if require("snippets.config").get_option("highlight_preview", false) then
+	if require("nvim-snippets.config").get_option("highlight_preview", false) then
 		preview = string.format("```%s\n%s\n```", vim.bo.filetype, preview)
 	end
 	completion_item.documentation = {

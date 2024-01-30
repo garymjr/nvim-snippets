@@ -1,7 +1,7 @@
 local snippets = {}
 
-snippets.config = require("snippets.config")
-snippets.utils = require("snippets.utils")
+snippets.config = require("nvim-snippets.config")
+snippets.utils = require("nvim-snippets.utils")
 
 Snippets = snippets
 
