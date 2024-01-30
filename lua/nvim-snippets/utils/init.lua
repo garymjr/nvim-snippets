@@ -1,6 +1,6 @@
 local utils = {}
 
-utils.cmp = require("snippets.utils.cmp")
+utils.cmp = require("nvim-snippets.utils.cmp")
 
 ---@type fun(filetype: string): boolean
 function utils.is_filetype_ignored(filetype)
