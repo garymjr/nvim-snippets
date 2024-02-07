@@ -1,7 +1,5 @@
 local utils = {}
 
-utils.cmp = require("snippets.utils.cmp")
-
 ---@type fun(filetype: string): boolean
 function utils.is_filetype_ignored(filetype)
 	local ignored_filetypes = Snippets.config.get_option("ignored_filetypes", {})
@@ -175,7 +173,7 @@ function utils.create_autocmd()
 end
 
 function utils.register_cmp_source()
-	utils.cmp.register()
+    require("snippets.utils.cmp").register()
 end
 
 function utils.load_friendly_snippets()
