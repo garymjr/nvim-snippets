@@ -28,6 +28,10 @@ function source:complete(_, callback)
 
 	local loaded_snippets = cache[vim.bo.filetype]
 
+	if loaded_snippets == nil then
+		return
+	end
+
 	local response = {}
 
 	for key in pairs(loaded_snippets) do
