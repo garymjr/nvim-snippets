@@ -24,7 +24,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     {
       "<Tab>",
       function()
-        if vim.snippet.jumpable(1) then
+        if vim.snippet.active({ direction = 1 }) then
           vim.schedule(function()
             vim.snippet.jump(1)
           end)
@@ -50,7 +50,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     {
       "<S-Tab>",
       function()
-        if vim.snippet.jumpable(-1) then
+        if vim.snippet.active({ direction = -1 }) then
           vim.schedule(function()
             vim.snippet.jump(-1)
           end)
@@ -91,5 +91,4 @@ search_paths       | `string[]`  | `{vim.fn.stdpath('config') .. '/snippets'}` |
 
 ## TODO
 - [ ] Automatically detect if friendly-snippets is installed
-- [ ] Add overrides to support overriding filetype snippets
 - [ ] (Undecided) Add support for friendly-snippets `package.json` definitions
