@@ -60,13 +60,11 @@ function utils.register_snippets()
 				return
 			end
 
+			Snippets.registry[key] = Snippets.registry[key] or {}
 			if type(file) == "table" then
-				Snippets.registry[key] = utils.normalize_table(Snippets.registry[key])
-				for _, f in ipairs(file) do
-					table.insert(Snippets.registry[key], f)
-				end
+				vim.list_extend(Snippets.registry[key], file)
 			else
-				Snippets.registry[key] = file
+				table.insert(Snippets.registry[key], file)
 			end
 		end
 	end
