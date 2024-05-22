@@ -1,5 +1,16 @@
 local utils = {}
 
+---@type fun(path: string): string|nil
+local function read_file(path)
+	local file = io.open(path, "r")
+	if not file then
+		return nil
+	end
+	local content = file:read("*a")
+	file:close()
+	return content
+end
+
 ---@type fun(filetype: string): boolean
 function utils.is_filetype_ignored(filetype)
 	local ignored_filetypes = Snippets.config.get_option("ignored_filetypes", {})
@@ -70,6 +81,16 @@ function utils.register_snippets()
 	end
 end
 
+---@type fun(path: string)
+function utils.reload_file(path)
+	local contents = read_file(path)
+	if contents then
+		local reloaded_snippets = vim.json.decode(contents)
+		Snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, Snippets.loaded_snippets, reloaded_snippets)
+		vim.notify(string.format("Reloaded %d snippets", #vim.tbl_keys(reloaded_snippets), vim.log.levels.INFO))
+	end
+end
+
 ---@type fun(filetype: string, files?: string[]): string[]
 function utils.get_filetype(filetype, files)
 	files = files or {}
@@ -92,18 +113,6 @@ function utils.is_filetype_extended(filetype)
 	return false
 end
 
----@param filePath string
----@return string -- content or error message
-local function read_file(filePath)
-	local file, err = io.open(filePath, "r")
-	if not file then
-		return err or ""
-	end
-	local content = file:read("*a")
-	file:close()
-	return content
-end
-
 ---@type fun(filetype?: string): table<string, table>
 function utils.get_snippets_for_ft(filetype)
 	local loaded = {}
@@ -114,12 +123,18 @@ function utils.get_snippets_for_ft(filetype)
 
 	if type(files) == "table" then
 		for _, f in ipairs(files) do
-			local snippets = vim.json.decode(read_file(f))
-			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+			local contents = read_file(f)
+			if contents then
+				local snippets = vim.json.decode(contents)
+				loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+			end
 		end
 	else
-		local snippets = vim.json.decode(read_file(files))
-		loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+		local contents = read_file(files)
+		if contents then
+			local snippets = vim.json.decode(contents)
+			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+		end
 	end
 	return loaded
 end
@@ -183,7 +198,7 @@ function utils.create_autocmd()
 end
 
 function utils.register_cmp_source()
-    require("snippets.utils.cmp").register()
+	require("snippets.utils.cmp").register()
 end
 
 function utils.load_friendly_snippets()
