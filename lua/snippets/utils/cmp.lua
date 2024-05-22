@@ -2,14 +2,8 @@ local cmp = require("cmp")
 
 local source = {}
 
-local cache = {}
-
 source.new = function()
 	return setmetatable({}, { __index = source })
-end
-
-source.clear_cache = function()
-	cache = {}
 end
 
 function source:is_available()
@@ -22,11 +16,7 @@ function source:get_debug_name()
 end
 
 function source:complete(_, callback)
-	if cache[vim.bo.filetype] == nil then
-		cache[vim.bo.filetype] = Snippets.load_snippets_for_ft(vim.bo.filetype)
-	end
-
-	local loaded_snippets = cache[vim.bo.filetype]
+	local loaded_snippets = Snippets.load_snippets_for_ft(vim.bo.filetype)
 
 	if loaded_snippets == nil then
 		return
