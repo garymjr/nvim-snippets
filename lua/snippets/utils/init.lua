@@ -92,6 +92,18 @@ function utils.is_filetype_extended(filetype)
 	return false
 end
 
+---@param filePath string
+---@return string -- content or error message
+local function read_file(filePath)
+	local file, err = io.open(filePath, "r")
+	if not file then
+		return err or ""
+	end
+	local content = file:read("*a")
+	file:close()
+	return content
+end
+
 ---@type fun(filetype?: string): table<string, table>
 function utils.get_snippets_for_ft(filetype)
 	local loaded = {}
@@ -102,11 +114,11 @@ function utils.get_snippets_for_ft(filetype)
 
 	if type(files) == "table" then
 		for _, f in ipairs(files) do
-			local snippets = vim.fn.json_decode(vim.fn.readfile(f))
+			local snippets = vim.json.decode(read_file(f))
 			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
 		end
 	else
-		local snippets = vim.fn.json_decode(vim.fn.readfile(files))
+		local snippets = vim.json.decode(read_file(files))
 		loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
 	end
 	return loaded
