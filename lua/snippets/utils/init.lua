@@ -30,26 +30,42 @@ function utils.normalize_table(value)
 	return tbl
 end
 
----@type fun(dir: string, result?: string[]): string|nil
+---@type fun(dir: string, result?: string[]): string[]
 ---@return string[]
 function utils.scan_for_snippets(dir, result)
 	result = result or {}
 
-	local req = vim.uv.fs_scandir(dir)
-	if not req then
+	local stat = vim.uv.fs_stat(dir)
+	if not stat then
 		return result
 	end
 
-	local function iter()
-		return vim.uv.fs_scandir_next(req)
-	end
+	if stat.type == "directory" then
+		local req = vim.uv.fs_scandir(dir)
+		if not req then
+			return result
+		end
 
-	for name, ftype in iter do
-		local path = string.format("%s/%s", dir, name)
-		if ftype == "directory" then
-			result[name] = utils.scan_for_snippets(path, result[name] or {})
-		elseif ftype == "file" and string.match(name, "(.*json)") then
-			table.insert(result, path)
+		local function iter()
+			return vim.uv.fs_scandir_next(req)
+		end
+
+		for name, ftype in iter do
+			local path = string.format("%s/%s", dir, name)
+
+			utils.scan_for_snippets(path, result)
+		end
+	elseif stat.type == "file" then
+		local name = vim.fn.fnamemodify(dir, ":t")
+
+		if name:match("%.json$") then
+			table.insert(result, dir)
+		end
+	elseif stat.type == "link" then
+		local target = vim.uv.fs_readlink(dir)
+
+		if target then
+			utils.scan_for_snippets(target, result)
 		end
 	end
 
