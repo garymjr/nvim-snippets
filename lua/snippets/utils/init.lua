@@ -53,7 +53,11 @@ function utils.scan_for_snippets(dir, result)
 		for name, ftype in iter do
 			local path = string.format("%s/%s", dir, name)
 
-			utils.scan_for_snippets(path, result)
+			if ftype == "directory" then
+				result[name] = utils.scan_for_snippets(path, result[name] or {})
+			else
+				utils.scan_for_snippets(path, result)
+			end
 		end
 	elseif stat.type == "file" then
 		local name = vim.fn.fnamemodify(dir, ":t")
