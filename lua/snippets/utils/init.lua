@@ -81,13 +81,15 @@ function utils.register_snippets()
 	end
 end
 
----@type fun(path: string)
-function utils.reload_file(path)
+---@type fun(path: string, silent?: boolean)
+function utils.reload_file(path, silent)
 	local contents = read_file(path)
 	if contents then
 		local reloaded_snippets = vim.json.decode(contents)
 		Snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, Snippets.loaded_snippets, reloaded_snippets)
-		vim.notify(string.format("Reloaded %d snippets", #vim.tbl_keys(reloaded_snippets), vim.log.levels.INFO))
+		if not silent then
+			vim.notify(string.format("Reloaded %d snippets", #vim.tbl_keys(reloaded_snippets), vim.log.levels.INFO))
+		end
 	end
 end
 
