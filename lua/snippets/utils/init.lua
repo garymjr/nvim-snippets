@@ -1,5 +1,7 @@
 local utils = {}
 
+utils.builtin_vars = require("snippets.utils.builtin")
+
 ---@type fun(path: string): string|nil
 local function read_file(path)
 	local file = io.open(path, "r")
@@ -173,6 +175,19 @@ function utils.get_global_snippets(loaded)
 		end
 	end
 	return loaded
+end
+
+---@type fun(snippet: string): string
+function utils.expand_vars(snippet)
+	local lazy_vars = Snippets.utils.builtin_vars.lazy
+
+	local expanded_snippet = snippet
+	for match in snippet:gmatch("%${(.-)}") do
+		if lazy_vars[match] then
+			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", lazy_vars[match]())
+		end
+	end
+	return expanded_snippet
 end
 
 ---@type fun(prefix: string): table<string, table>|nil

@@ -75,6 +75,8 @@ function source:resolve(completion_item, callback)
 		kind = cmp.lsp.MarkupKind.Markdown,
 		value = preview,
 	}
+
+	completion_item.insertText = Snippets.utils.expand_vars(completion_item.data.body)
 	callback(completion_item)
 end
 
