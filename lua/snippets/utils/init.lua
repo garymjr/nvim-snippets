@@ -184,7 +184,7 @@ function utils.expand_vars(snippet)
 	local expanded_snippet = snippet
 	for match in snippet:gmatch("%${(.-)}") do
 		if lazy_vars[match] then
-			expanded_snippet = snippet:gsub("${" .. match .. "}", lazy_vars[match]())
+			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", lazy_vars[match]())
 		end
 	end
 	return expanded_snippet

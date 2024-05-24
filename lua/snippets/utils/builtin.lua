@@ -176,3 +176,5 @@ end
 function builtin.lazy.BLOCK_COMMENT_END()
 	return buffer_comment_chars()[3]
 end
+
+return builtin

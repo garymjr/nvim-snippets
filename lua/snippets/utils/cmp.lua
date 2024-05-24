@@ -33,8 +33,6 @@ function source:complete(_, callback)
 			body = snippet.body
 		end
 
-		body = Snippets.utils.expand_vars(body)
-
 		local prefix = loaded_snippets[key].prefix
 		if type(prefix) == "table" then
 			for _, p in ipairs(prefix) do
@@ -43,7 +41,7 @@ function source:complete(_, callback)
 					kind = cmp.lsp.CompletionItemKind.Snippet,
 					insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
 					insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
-					insertText = body,
+					insertText = Snippets.utils.expand_vars(body),
 					data = {
 						prefix = p,
 						body = body,
@@ -56,7 +54,7 @@ function source:complete(_, callback)
 				kind = cmp.lsp.CompletionItemKind.Snippet,
 				insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
 				insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
-				insertText = body,
+				insertText = Snippets.utils.expand_vars(body),
 				data = {
 					prefix = prefix,
 					body = body,
