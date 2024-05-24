@@ -180,10 +180,13 @@ end
 ---@type fun(snippet: string): string
 function utils.expand_vars(snippet)
 	local lazy_vars = Snippets.utils.builtin_vars.lazy
+	local eager_vars = Snippets.utils.builtin_vars.eager or {}
 
 	local expanded_snippet = snippet
 	for match in snippet:gmatch("%${(.-)}") do
-		if lazy_vars[match] then
+		if eager_vars[match] then
+			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", eager_vars[match])
+		elseif lazy_vars[match] then
 			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", lazy_vars[match]())
 		end
 	end
