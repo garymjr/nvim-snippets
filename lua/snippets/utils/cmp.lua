@@ -41,7 +41,7 @@ function source:complete(_, callback)
 					kind = cmp.lsp.CompletionItemKind.Snippet,
 					insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
 					insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
-					insertText = Snippets.utils.expand_vars(body),
+					insertText = body,
 					data = {
 						prefix = p,
 						body = body,
@@ -54,7 +54,7 @@ function source:complete(_, callback)
 				kind = cmp.lsp.CompletionItemKind.Snippet,
 				insertTextFormat = cmp.lsp.InsertTextFormat.Snippet,
 				insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
-				insertText = Snippets.utils.expand_vars(body),
+				insertText = body,
 				data = {
 					prefix = prefix,
 					body = body,
@@ -75,6 +75,8 @@ function source:resolve(completion_item, callback)
 		kind = cmp.lsp.MarkupKind.Markdown,
 		value = preview,
 	}
+
+	completion_item.insertText = Snippets.utils.expand_vars(completion_item.data.body)
 	callback(completion_item)
 end
 
