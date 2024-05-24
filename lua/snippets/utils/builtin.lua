@@ -177,4 +177,60 @@ function builtin.lazy.BLOCK_COMMENT_END()
 	return buffer_comment_chars()[3]
 end
 
+local function get_cursor()
+	local c = vim.api.nvim_win_get_cursor(0)
+	c[1] = c[1] - 1
+	return c
+end
+
+local function get_current_line()
+	local pos = get_cursor()
+	return vim.api.nvim_buf_get_lines(0, pos[1], pos[1] + 1, false)[1]
+end
+
+local function word_under_cursor(cur, line)
+	if line == nil then
+		return
+	end
+
+	local ind_start = 1
+	local ind_end = #line
+
+	while true do
+		local tmp = string.find(line, "%W%w", ind_start)
+		if not tmp then
+			break
+		end
+		if tmp > cur[2] + 1 then
+			break
+		end
+		ind_start = tmp + 1
+	end
+
+	local tmp = string.find(line, "%w%W", cur[2] + 1)
+	if tmp then
+		ind_end = tmp
+	end
+
+	return string.sub(line, ind_start, ind_end)
+end
+
+vim.api.nvim_create_autocmd("InsertEnter", {
+	group = vim.api.nvim_create_augroup("nvim_snippets_eager_enter", { clear = true }),
+	callback = function()
+		builtin.eager = {}
+		builtin.eager.TM_CURRENT_LINE = get_current_line()
+		builtin.eager.TM_CURRENT_WORD = word_under_cursor(get_cursor(), builtin.eager.TM_CURRENT_LINE)
+		builtin.eager.TM_LINE_INDEX = tostring(get_cursor()[1])
+		builtin.eager.TM_LINE_NUMBER = tostring(get_cursor()[1] + 1)
+	end,
+})
+
+vim.api.nvim_create_autocmd("InsertLeave", {
+	group = vim.api.nvim_create_augroup("nvim_snippets_eager_leave", { clear = true }),
+	callback = function()
+		builtin.eager = nil
+	end,
+})
+
 return builtin
