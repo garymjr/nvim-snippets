@@ -197,13 +197,26 @@ function utils.get_global_snippets(loaded)
 	return loaded
 end
 
+---@type fun(input: string): vim.snippet.Node<vim.snippet.SnippetData>|nil
+local function safe_parse(input)
+	local safe, parsed = pcall(vim.lsp._snippet_grammar.parse, input)
+	if not safe then
+		return nil
+	end
+	return parsed
+end
+
 ---@type fun(snippet: string): string
-function utils.expand_vars(snippet)
+function utils.expand_vars(input)
 	local lazy_vars = Snippets.utils.builtin_vars.lazy
 	local eager_vars = Snippets.utils.builtin_vars.eager or {}
 
-	local resolved_snippet = snippet
-	local parsed_snippet = vim.lsp._snippet_grammar.parse(snippet)
+	local resolved_snippet = input
+	local parsed_snippet = safe_parse(input)
+	if not parsed_snippet then
+		return input
+	end
+
 	for _, child in ipairs(parsed_snippet.data.children) do
 		local type, data = child.type, child.data
 		if type == vim.lsp._snippet_grammar.NodeType.Variable then
