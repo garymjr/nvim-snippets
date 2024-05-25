@@ -215,6 +215,13 @@ local function word_under_cursor(cur, line)
 	return string.sub(line, ind_start, ind_end)
 end
 
+local function get_selected_text()
+	if vim.fn.visualmode() == "V" then
+		return vim.fn.trim(vim.fn.getreg('"', true), "\n", 2)
+	end
+	return ""
+end
+
 vim.api.nvim_create_autocmd("InsertEnter", {
 	group = vim.api.nvim_create_augroup("nvim_snippets_eager_enter", { clear = true }),
 	callback = function()
@@ -223,6 +230,7 @@ vim.api.nvim_create_autocmd("InsertEnter", {
 		builtin.eager.TM_CURRENT_WORD = word_under_cursor(get_cursor(), builtin.eager.TM_CURRENT_LINE)
 		builtin.eager.TM_LINE_INDEX = tostring(get_cursor()[1])
 		builtin.eager.TM_LINE_NUMBER = tostring(get_cursor()[1] + 1)
+		builtin.eager.TM_SELECTED_TEXT = get_selected_text()
 	end,
 })
 
