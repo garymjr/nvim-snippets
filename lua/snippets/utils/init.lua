@@ -197,20 +197,38 @@ function utils.get_global_snippets(loaded)
 	return loaded
 end
 
+---@type fun(input: string): vim.snippet.Node<vim.snippet.SnippetData>|nil
+local function safe_parse(input)
+	local safe, parsed = pcall(vim.lsp._snippet_grammar.parse, input)
+	if not safe then
+		return nil
+	end
+	return parsed
+end
+
 ---@type fun(snippet: string): string
-function utils.expand_vars(snippet)
+function utils.expand_vars(input)
 	local lazy_vars = Snippets.utils.builtin_vars.lazy
 	local eager_vars = Snippets.utils.builtin_vars.eager or {}
 
-	local expanded_snippet = snippet
-	for match in snippet:gmatch("%${(.-)}") do
-		if eager_vars[match] then
-			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", eager_vars[match])
-		elseif lazy_vars[match] then
-			expanded_snippet = expanded_snippet:gsub("${" .. match .. "}", lazy_vars[match]())
+	local resolved_snippet = input
+	local parsed_snippet = safe_parse(input)
+	if not parsed_snippet then
+		return input
+	end
+
+	for _, child in ipairs(parsed_snippet.data.children) do
+		local type, data = child.type, child.data
+		if type == vim.lsp._snippet_grammar.NodeType.Variable then
+			if eager_vars[data.name] then
+				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", eager_vars[data.name])
+			elseif lazy_vars[data.name] then
+				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", lazy_vars[data.name]())
+			end
 		end
 	end
-	return expanded_snippet
+
+	return resolved_snippet
 end
 
 ---@type fun(prefix: string): table<string, table>|nil
