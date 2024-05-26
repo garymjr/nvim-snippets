@@ -22,7 +22,7 @@ function builtin.lazy.TM_FILEPATH()
 end
 
 function builtin.lazy.CLIPBOARD()
-	return vim.fn.getreg('"', true)
+	return vim.fn.getreg(vim.v.register, true)
 end
 
 local function buf_to_ws_part()
