@@ -216,9 +216,7 @@ local function word_under_cursor(cur, line)
 end
 
 local function get_selected_text()
-	vim.print(vim.fn.visualmode())
 	if vim.fn.visualmode() == "V" then
-		vim.print(vim.fn.getreg(vim.v.register, true))
 		return vim.fn.trim(vim.fn.getreg(vim.v.register, true), "\n", 2)
 	end
 	return ""
