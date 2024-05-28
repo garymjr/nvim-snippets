@@ -2,7 +2,6 @@ local snippets = {}
 
 snippets.config = require("snippets.config")
 snippets.utils = require("snippets.utils")
-snippets.parser = require("snippets.parser")
 
 Snippets = snippets
 

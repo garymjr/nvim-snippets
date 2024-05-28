@@ -251,7 +251,7 @@ end
 
 ---@type fun(input: string): vim.snippet.Node<vim.snippet.SnippetData>|nil
 local function safe_parse(input)
-	local safe, parsed = pcall(Snippets.parser.parse, input)
+	local safe, parsed = pcall(vim.lsp._snippet_grammar.parse, input)
 	if not safe then
 		return nil
 	end
