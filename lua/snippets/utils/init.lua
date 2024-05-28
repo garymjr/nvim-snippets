@@ -168,12 +168,35 @@ function utils.is_filetype_extended(filetype)
 	return false
 end
 
----@type fun(filetype?: string): table<string, table>
+---@type fun(snippet: Snippet, fallback: string): table
+local function read_snippet(snippet, fallback)
+	local snippets = {}
+	local prefix = snippet.prefix or fallback
+	local description = snippet.description or fallback
+	local body = snippet.body
+	if type(prefix) == "table" then
+		for _, p in ipairs(prefix) do
+			snippets[p] = {
+				prefix = p,
+				body = body,
+				description = description,
+			}
+		end
+	else
+		snippets[prefix] = {
+			prefix = prefix,
+			body = body,
+			description = description,
+		}
+	end
+	return snippets
+end
+
+---@type fun(filetype?: string)
 function utils.get_snippets_for_ft(filetype)
-	local loaded = {}
 	local files = Snippets.registry[filetype]
 	if not files then
-		return loaded
+		return
 	end
 
 	if type(files) == "table" then
@@ -181,51 +204,49 @@ function utils.get_snippets_for_ft(filetype)
 			local contents = read_file(f)
 			if contents then
 				local snippets = vim.json.decode(contents)
-				loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+				for _, key in ipairs(vim.tbl_keys(snippets)) do
+					local snippet = read_snippet(snippets[key], key)
+					Snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, Snippets.loaded_snippets, snippet)
+				end
 			end
 		end
 	else
 		local contents = read_file(files)
 		if contents then
 			local snippets = vim.json.decode(contents)
-			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets) or loaded
+			for _, key in ipairs(vim.tbl_keys(snippets)) do
+				local snippet = read_snippet(snippets[key], key)
+				Snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, Snippets.loaded_snippets, snippet)
+			end
 		end
 	end
-	return loaded
 end
 
----@type fun(filetype: string, loaded?: table<string, table>): table<string, table>
-function utils.get_extended_snippets(filetype, loaded)
-	loaded = loaded or {}
+---@type fun(filetype: string)
+function utils.get_extended_snippets(filetype)
 	if not filetype then
-		return loaded
+		return
 	end
 
 	local extended_snippets = Snippets.config.get_option("extended_filetypes", {})[filetype] or {}
 	for _, ft in ipairs(extended_snippets) do
 		if utils.is_filetype_extended(ft) then
-			loaded = utils.get_extended_snippets(ft, loaded)
+			utils.get_extended_snippets(ft)
 		else
-			local snippets = utils.get_snippets_for_ft(ft)
-			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets)
+			utils.get_snippets_for_ft(ft)
 		end
 	end
-	return loaded
 end
 
----@type fun(loaded?: table<string, table>): table<string, table>
-function utils.get_global_snippets(loaded)
-	loaded = loaded or {}
+function utils.get_global_snippets()
 	local global_snippets = Snippets.config.get_option("global_snippets", {})
 	for _, ft in ipairs(global_snippets) do
 		if utils.is_filetype_extended(ft) then
-			loaded = utils.get_extended_snippets(ft, loaded)
+			utils.get_extended_snippets(ft)
 		else
-			local snippets = utils.get_snippets_for_ft(ft)
-			loaded = vim.tbl_deep_extend("force", {}, loaded, snippets)
+			utils.get_snippets_for_ft(ft)
 		end
 	end
-	return loaded
 end
 
 ---@type fun(input: string): vim.snippet.Node<vim.snippet.SnippetData>|nil
@@ -260,16 +281,6 @@ function utils.expand_vars(input)
 	end
 
 	return resolved_snippet
-end
-
----@type fun(prefix: string): table<string, table>|nil
-function utils.find_snippet_prefix(prefix)
-	if not prefix then
-		return nil
-	end
-
-	local key = Snippets.prefix_lookup[prefix]
-	return Snippets.loaded_snippets[key]
 end
 
 function utils.create_autocmd()

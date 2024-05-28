@@ -9,6 +9,7 @@ Snippets = snippets
 ---@class Snippet
 ---@field prefix string
 ---@field body string
+---@field description? string
 
 ---@private
 ---@type table<string, Snippet>
@@ -18,24 +19,16 @@ snippets.loaded_snippets = {}
 ---@type table<string, string|string[]>
 snippets.registry = {}
 
----@private
----@type table<string, string>
-snippets.prefix_lookup = {}
-
 ---@type fun(filetype?: string): table<string, table>|nil
 function snippets.load_snippets_for_ft(filetype)
 	if snippets.utils.is_filetype_ignored(filetype) then
 		return nil
 	end
 
-	local global_snippets = snippets.utils.get_global_snippets()
-	local extended_snippets = snippets.utils.get_extended_snippets(filetype)
-	local ft_snippets = snippets.utils.get_snippets_for_ft(filetype)
-	snippets.loaded_snippets = vim.tbl_deep_extend("force", {}, global_snippets, extended_snippets, ft_snippets)
+	snippets.utils.get_global_snippets()
+	snippets.utils.get_extended_snippets(filetype)
+	snippets.utils.get_snippets_for_ft(filetype)
 
-	for key, snippet in pairs(snippets.loaded_snippets) do
-		snippets.prefix_lookup[snippet.prefix] = key
-	end
 	return snippets.loaded_snippets
 end
 
