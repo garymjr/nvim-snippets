@@ -80,7 +80,7 @@ function utils.register_snippets()
 	local search_paths = Snippets.config.get_option("search_paths", {})
 
 	for _, path in ipairs(search_paths) do
-		local files = utils.scan_for_snippets(path)
+		local files = utils.load_package_json(path) or utils.scan_for_snippets(path)
 		for ft, file in pairs(files) do
 			local key
 			if type(ft) == "number" then
@@ -101,6 +101,37 @@ function utils.register_snippets()
 			end
 		end
 	end
+end
+
+--- This will try to load the snippets from the package.json file
+---@param path string
+function utils.load_package_json(path)
+	local file = path .. "/package.json"
+	local data = read_file(file)
+
+	if not data then
+		return
+	end
+
+	local pkg = vim.json.decode(data)
+	---@type {path: string, language: string|string[]}[]
+	local snippets = vim.tbl_get(pkg, "contributes", "snippets")
+
+	if not snippets then
+		return
+	end
+
+	local ret = {} ---@type table<string, string[]>
+	for _, s in ipairs(snippets) do
+		local langs = s.language or {}
+		langs = type(langs) == "string" and { langs } or langs
+		---@cast langs string[]
+		for _, lang in ipairs(langs) do
+			ret[lang] = ret[lang] or {}
+			table.insert(ret[lang], vim.fs.normalize(vim.fs.joinpath(path, s.path)))
+		end
+	end
+	return ret
 end
 
 ---@type fun(path: string, silent?: boolean)
@@ -263,7 +294,7 @@ function utils.load_friendly_snippets()
 	local search_paths = Snippets.config.get_option("search_paths", {})
 	for _, path in ipairs(vim.api.nvim_list_runtime_paths()) do
 		if string.match(path, "friendly.snippets") then
-			table.insert(search_paths, string.format("%s/snippets", path))
+			table.insert(search_paths, path)
 		end
 	end
 	Snippets.config.set_option("search_paths", search_paths)
