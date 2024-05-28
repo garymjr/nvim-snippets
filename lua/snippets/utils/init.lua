@@ -265,6 +265,11 @@ local function resolve_variable(input, name, replacement)
 	return input:gsub("%$[{]?(" .. name .. ")[}]?", replacement)
 end
 
+function utils.preview(snippet)
+	local parse = safe_parse(utils.expand_vars(snippet))
+	return parse and tostring(parse) or snippet
+end
+
 ---@type fun(snippet: string): string
 function utils.expand_vars(input)
 	local lazy_vars = Snippets.utils.builtin_vars.lazy

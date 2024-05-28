@@ -1,4 +1,5 @@
 local cmp = require("cmp")
+local utils = require("snippets.utils")
 
 local source = {}
 
@@ -67,7 +68,7 @@ end
 
 function source:resolve(completion_item, callback)
 	-- highlight code block
-	local preview = completion_item.data.body
+	local preview = utils.preview(completion_item.data.body)
 	if require("snippets.config").get_option("highlight_preview", false) then
 		preview = string.format("```%s\n%s\n```", vim.bo.filetype, preview)
 	end
