@@ -350,4 +350,13 @@ function utils.load_friendly_snippets()
 	Snippets.config.set_option("search_paths", search_paths)
 end
 
+---@type fun(prefix: string): table<string, table>|nil
+function utils.find_snippet_prefix(prefix)
+	if not prefix then
+		return nil
+	end
+
+	return Snippets.loaded_snippets[prefix]
+end
+
 return utils
