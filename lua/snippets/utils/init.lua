@@ -274,13 +274,6 @@ local function safe_parse(input)
 	return parsed
 end
 
----@param input string
----@param name string
----@param replacement string
-local function resolve_variable(input, name, replacement)
-	return input:gsub("%$[{]?(" .. name .. ")[}]?", replacement)
-end
-
 function utils.preview(snippet)
 	local parse = safe_parse(utils.expand_vars(snippet))
 	return parse and tostring(parse) or snippet
@@ -299,22 +292,11 @@ function utils.expand_vars(input)
 
 	for _, child in ipairs(parsed_snippet.data.children) do
 		local type, data = child.type, child.data
-		if type == vim.lsp._snippet_grammar.NodeType.Placeholder then
-			--- @cast data vim.snippet.PlaceholderData
-			local ptype = data.value.type
-			local pdata = data.value.data
-			if ptype == vim.lsp._snippet_grammar.NodeType.Variable then
-				if eager_vars[pdata.name] then
-					resolved_snippet = resolve_variable(resolved_snippet, pdata.name, eager_vars[pdata.name])
-				elseif lazy_vars[pdata.name] then
-					resolved_snippet = resolve_variable(resolved_snippet, pdata.name, lazy_vars[pdata.name])
-				end
-			end
-		elseif type == vim.lsp._snippet_grammar.NodeType.Variable then
+		if type == vim.lsp._snippet_grammar.NodeType.Variable then
 			if eager_vars[data.name] then
-				resolved_snippet = resolve_variable(resolved_snippet, data.name, eager_vars[data.name])
+				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", eager_vars[data.name])
 			elseif lazy_vars[data.name] then
-				resolved_snippet = resolve_variable(resolved_snippet, data.name, lazy_vars[data.name])
+				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", lazy_vars[data.name]())
 			end
 		end
 	end
