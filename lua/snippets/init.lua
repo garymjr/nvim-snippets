@@ -62,6 +62,26 @@ function snippets.get_loaded_snippets()
 	return snippets.loaded_snippets
 end
 
+function snippets.expand_or_jump()
+	if vim.snippet.active({ direction = 1 }) then
+		return vim.schedule(function()
+			vim.snippet.jump(1)
+		end)
+	end
+	-- code
+	local snippet, prefix = snippets.utils.get_snippet_at_cursor(snippets.loaded_snippets)
+
+	if type(snippet) ~= "string" then
+		return
+	end
+
+	vim.schedule(function()
+		local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
+		vim.api.nvim_buf_set_text(0, lnum - 1, col - #prefix, lnum - 1, col, {})
+		vim.snippet.expand(snippet)
+	end)
+end
+
 ---@param opts? table  -- Make a better type for this
 function snippets.setup(opts)
 	snippets.config.new(opts)
