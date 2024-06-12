@@ -341,30 +341,15 @@ function utils.find_snippet_prefix(prefix)
 	return Snippets.loaded_snippets[prefix]
 end
 
----@type fun(snippets: table<string, table>|nil, prefix: string): table|nil
-local function get_snippet_by_prefix(snippets, prefix)
-	if not snippets then
-		return nil
-	end
-
-	for _, value in pairs(snippets) do
-		if value.prefix == prefix then
-			return value
-		end
-	end
-
-	return nil
-end
-
 ---@type fun(snippets: table<string, table>|nil): string|nil, string
-function utils.get_snippet_at_cursor(snippets)
+function utils.get_snippet_at_cursor()
 	local line = vim.api.nvim_get_current_line()
 	local offset = vim.fn.mode() == "i" and 0 or 1
 	local col = vim.api.nvim_win_get_cursor(0)[2] + offset
 
 	-- TODO: Probably make matching character configurable
 	local prefix = line:sub(1, col):match("[%w_-.]*$")
-	local res = get_snippet_by_prefix(snippets, prefix)
+	local res = utils.find_snippet_prefix(prefix)
 
 	if not res then
 		return nil, prefix
@@ -372,11 +357,9 @@ function utils.get_snippet_at_cursor(snippets)
 
 	if vim.is_callable(res.body) then
 		return res.body(), prefix
-	elseif type(res.body) == "table" then
-		return table.concat(res.body, "\n"), prefix
 	end
 
-	return res.body, prefix
+	return table.concat(res.body, "\n"), prefix
 end
 
 return utils

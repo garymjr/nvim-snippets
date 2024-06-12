@@ -69,7 +69,7 @@ function snippets.expand_or_jump()
 		end)
 	end
 	-- code
-	local snippet, prefix = snippets.utils.get_snippet_at_cursor(snippets.loaded_snippets)
+	local snippet, prefix = snippets.utils.get_snippet_at_cursor()
 
 	if type(snippet) ~= "string" then
 		return
