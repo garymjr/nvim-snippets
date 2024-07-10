@@ -172,9 +172,7 @@ function utils.reload_file(path, silent)
 			vim.notify(string.format("Reloaded %d snippets", #vim.tbl_keys(reloaded_snippets), vim.log.levels.INFO))
 		end
 	end
-	if Snippets.active_filetype then
-		Snippets.cache[Snippets.active_filetype] = Snippets.loaded_snippets
-	end
+	Snippets.clear_cache() -- clear full cache to catch edge cases, such as #47
 end
 
 ---@deprecated
