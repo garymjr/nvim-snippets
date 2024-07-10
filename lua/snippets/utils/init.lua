@@ -322,9 +322,14 @@ end
 
 function utils.load_friendly_snippets()
 	local search_paths = Snippets.config.get_option("search_paths", {})
-	for _, path in ipairs(vim.api.nvim_list_runtime_paths()) do
-		if string.match(path, "friendly.snippets") then
-			table.insert(search_paths, path)
+	local friendly_path = "friendly.snippets/snippets"
+	-- Get all snippet files in the rtp
+	for _, path in ipairs(vim.api.nvim_get_runtime_file("snippets/*.json", true)) do
+		-- Check if it is a friendly-snippets path
+		local pos = string.find(path, friendly_path)
+		if pos then
+			table.insert(search_paths, string.sub(path, 1, pos + #friendly_path - 1))
+			break
 		end
 	end
 	Snippets.config.set_option("search_paths", search_paths)
