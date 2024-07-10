@@ -7,6 +7,10 @@ source.new = function()
 	return setmetatable({}, { __index = source })
 end
 
+source.get_keyword_pattern = function()
+	return "\\%([^[:alnum:][:blank:]]\\|\\w\\+\\)"
+end
+
 function source:is_available()
 	local ok, _ = pcall(require, "snippets")
 	return ok
