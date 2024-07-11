@@ -1,0 +1,3 @@
+indent_width = 4
+quote_style = "AutoPreferDouble"
+call_parentheses = "None"
