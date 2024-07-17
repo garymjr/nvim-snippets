@@ -324,7 +324,7 @@ function utils.load_friendly_snippets()
 	local search_paths = Snippets.config.get_option("search_paths", {})
 	for _, path in ipairs(vim.api.nvim_list_runtime_paths()) do
 		if string.match(path, "friendly.snippets") then
-			table.insert(search_paths, path)
+			table.insert(search_paths, 1, path)
 		end
 	end
 	Snippets.config.set_option("search_paths", search_paths)
