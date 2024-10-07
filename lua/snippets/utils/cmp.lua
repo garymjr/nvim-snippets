@@ -1,4 +1,5 @@
 local cmp = require("cmp")
+local config = require("snippets.config")
 local utils = require("snippets.utils")
 
 local source = {}
@@ -48,6 +49,7 @@ function source:complete(_, callback)
 					insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
 					insertText = body,
 					data = {
+						description = snippet.description,
 						prefix = p,
 						body = body,
 					},
@@ -61,6 +63,7 @@ function source:complete(_, callback)
 				insertTextMode = cmp.lsp.InsertTextMode.AdjustIndentation,
 				insertText = body,
 				data = {
+					description = snippet.description,
 					prefix = prefix,
 					body = body,
 				},
@@ -71,17 +74,21 @@ function source:complete(_, callback)
 end
 
 function source:resolve(completion_item, callback)
-	-- highlight code block
-	local preview = utils.preview(completion_item.data.body)
-	if require("snippets.config").get_option("highlight_preview", false) then
+	completion_item.insertText = utils.expand_vars(completion_item.data.body)
+
+	local preview = completion_item.insertText
+	if config.get_option("highlight_preview", false) then
 		preview = string.format("```%s\n%s\n```", vim.bo.filetype, preview)
 	end
+	if completion_item.data.description then
+		preview = string.format("%s\n---\n%s", completion_item.data.description, preview)
+	end
+
 	completion_item.documentation = {
 		kind = cmp.lsp.MarkupKind.Markdown,
 		value = preview,
 	}
 
-	completion_item.insertText = Snippets.utils.expand_vars(completion_item.data.body)
 	callback(completion_item)
 end
 
