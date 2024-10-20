@@ -18,6 +18,9 @@ local defaults = {
 	--- Should we try to load the friendly-snippets snippets?
 	---@type boolean
 	friendly_snippets = false,
+  --- Passed as `FileType` autocommand pattern (`*` if `nil`) to restrict the set of filetypes. Sometimes it can be more convenient than finding what filetype should be separately ignored (think about noice, mini.notify, etc.).
+	---@type string[]?
+	allowed_filetypes = nil,
 	--- A list of filetypes to ignore snippets for
 	---@type table|nil
 	ignored_filetypes = nil,

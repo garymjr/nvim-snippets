@@ -309,7 +309,7 @@ function utils.create_autocmd()
 
 	vim.api.nvim_create_autocmd("FileType", {
 		group = vim.api.nvim_create_augroup("snippets_ft_detect", { clear = true }),
-		pattern = "*",
+    pattern = Snippets.config.get_option("allowed_filetypes") or "*",
 		callback = function()
 			Snippets.load_snippets_for_ft(vim.bo.filetype)
 		end,
