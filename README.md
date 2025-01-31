@@ -66,6 +66,50 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 }
 ```
 
+With minimal `hrsh7th/nvim-cmp` and `garymjr/friendly-snippets` setup:
+
+```lua
+{
+  "hrsh7th/nvim-cmp",
+  dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-path",
+    "hrsh7th/cmp-cmdline",
+    "rafamadriz/friendly-snippets",
+    {
+      "garymjr/nvim-snippets",
+      create_cmp_source = true,
+      friendly_snippets = true,
+    },
+  },
+  config = function()
+    local cmp = require("cmp")
+    cmp.setup({
+      snippet = {
+        expand = function(args)
+          vim.snippet.expand(args.body)
+        end,
+      },
+      mapping = cmp.mapping.preset.insert({
+        -- Recommended keymap.
+        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<C-e>"] = cmp.mapping.abort(),
+        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+      }),
+      sources = cmp.config.sources({
+        { name = "nvim_lsp"},
+        { name = "snippets" }
+      }, {
+        { name = "buffer" }
+      })
+    })
+  end
+},
+```
+
 ## Configuration
 
 | Option           | Type      | Default                                   | Description           |
