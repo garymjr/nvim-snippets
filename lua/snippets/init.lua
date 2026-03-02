@@ -78,6 +78,10 @@ function snippets.setup(opts)
 	if snippets.config.get_option("create_cmp_source") then
 		snippets.utils.register_cmp_source()
 	end
+
+	if snippets.config.get_option("create_native_completion") then
+		snippets.utils.register_native_completion()
+	end
 end
 
 return snippets

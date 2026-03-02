@@ -68,15 +68,17 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ## Configuration
 
-| Option           | Type      | Default                                   | Description           |
--------------------|-----------|-------------------------------------------|------------------------
-create_autocmd     | `boolean?`  | `false`                                     | Optionally load all snippets when opening a file. Only needed if not using [nvim-cmp](https://github.com/hrsh7th/nvim-cmp).
-create_cmp_source  | `boolean?`  | `true`                                      | Optionally create a [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) source. Source name will be `snippets`.
-friendly_snippets  | `boolean?`  | `false`                                     | Set to true if using [friendly-snippets](https://github.com/rafamadriz/friendly-snippets).
-ignored_filetypes  | `string[]?` | `nil`                                       | Filetypes to ignore when loading snippets.
-extended_filetypes | `table?`    | `nil`                                       | Filetypes to load snippets for in addition to the default ones. `ex: {typescript = {'javascript'}}`
-global_snippets    | `string[]?` | `{'all'}`                                   | Snippets to load for all filetypes.
-search_paths       | `string[]`  | `{vim.fn.stdpath('config') .. '/snippets'}` | Paths to search for snippets.
+| Option                  | Type      | Default                                   | Description           |
+--------------------------|-----------|-------------------------------------------|------------------------
+create_autocmd            | `boolean?`  | `false`                                     | Optionally load all snippets when opening a file. Only needed if not using [nvim-cmp](https://github.com/hrsh7th/nvim-cmp).
+create_cmp_source         | `boolean?`  | `true`                                      | Optionally create a [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) source. Source name will be `snippets`.
+create_native_completion  | `boolean?`  | `false`                                     | Optionally create a native completion function for snippets. Function name will be `nvim_snippets_complete`.
+native_completion_kind    | `string?`   | `'Snippet'`                                 | The completion kind to use for the native completion function.
+friendly_snippets         | `boolean?`  | `false`                                     | Set to true if using [friendly-snippets](https://github.com/rafamadriz/friendly-snippets).
+ignored_filetypes         | `string[]?` | `nil`                                       | Filetypes to ignore when loading snippets.
+extended_filetypes        | `table?`    | `nil`                                       | Filetypes to load snippets for in addition to the default ones. `ex: {typescript = {'javascript'}}`
+global_snippets           | `string[]?` | `{'all'}`                                   | Snippets to load for all filetypes.
+search_paths              | `string[]`  | `{vim.fn.stdpath('config') .. '/snippets'}` | Paths to search for snippets.
 
 ## Example Snippet
 

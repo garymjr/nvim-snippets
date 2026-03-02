@@ -15,6 +15,13 @@ local defaults = {
 	--- The created source name is "snippets"
 	---@type boolean
 	create_cmp_source = true,
+	--- Should the global function for native completion be created?
+	--- The created function name is "nvim_snippets_complete"
+	---@type boolean
+	create_native_completion = false,
+	--- The completion item kind to use for native completion items
+	--- @type string
+	native_completion_kind = "Snippet",
 	--- Should we try to load the friendly-snippets snippets?
 	---@type boolean
 	friendly_snippets = false,
