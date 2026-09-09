@@ -277,6 +277,16 @@ function utils.preview(snippet)
 	return parse and tostring(parse) or snippet
 end
 
+-- string.gsub treats "%" in a string replacement as an escape/capture marker
+-- (e.g. "%1", "%%"), so escape "%" in variable values (e.g. ${CLIPBOARD}) to
+-- keep them literal. Otherwise values containing "%" (such as clipboard
+-- content) get corrupted during variable expansion.
+-- Parentheses drop gsub's second return value (replacement count), which
+-- would otherwise leak into the outer gsub as the "n" limit argument.
+local function escape_gsub_replacement(s)
+	return (s:gsub("%%", "%%%%"))
+end
+
 ---@type fun(snippet: string): string
 function utils.expand_vars(input)
 	local lazy_vars = Snippets.utils.builtin_vars.lazy
@@ -292,9 +302,15 @@ function utils.expand_vars(input)
 		local type, data = child.type, child.data
 		if type == vim.lsp._snippet_grammar.NodeType.Variable then
 			if eager_vars[data.name] then
-				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", eager_vars[data.name])
+				resolved_snippet = resolved_snippet:gsub(
+					"%$[{]?(" .. data.name .. ")[}]?",
+					escape_gsub_replacement(eager_vars[data.name])
+				)
 			elseif lazy_vars[data.name] then
-				resolved_snippet = resolved_snippet:gsub("%$[{]?(" .. data.name .. ")[}]?", lazy_vars[data.name]())
+				resolved_snippet = resolved_snippet:gsub(
+					"%$[{]?(" .. data.name .. ")[}]?",
+					escape_gsub_replacement(lazy_vars[data.name]())
+				)
 			end
 		end
 	end
